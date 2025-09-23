@@ -1,0 +1,2 @@
+# VibeCodingOsho
+Vibe Coding Osho
