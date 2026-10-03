@@ -4,20 +4,28 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
-      - FLASK_DEBUG=${FLASK_DEBUG:-false}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - REDIS_URL=redis://redis:6379/0
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY:?請先設定 FLASK_SECRET_KEY}
+      FLASK_DEBUG: ${FLASK_DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      REDIS_URL: redis://redis:6379/0
+      ENABLE_HSTS: ${ENABLE_HSTS:-false}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      TRUSTED_PROXY_COUNT: ${TRUSTED_PROXY_COUNT:-0}
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
 
   redis:
     image: redis:alpine
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     restart: unless-stopped
 
 volumes:

@@ -9,13 +9,17 @@ __pycache__
 dist
 build
 .pytest_cache
+.venv
 .coverage
 htmlcov
+.env
+.env.*
 .git
 .gitignore
 .vscode
 .idea
 *.md
 tests/
+flask_session/
 Dockerfile
 docker-compose.yml

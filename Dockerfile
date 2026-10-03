@@ -2,9 +2,6 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -14,12 +11,14 @@ USER appuser
 
 COPY --chown=appuser:appuser . .
 
-ENV FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-changeme}
-ENV FLASK_DEBUG=${FLASK_DEBUG:-false}
-ENV PORT=5000
-ENV LOG_LEVEL=INFO
-ENV REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+ENV PORT=5000 \
+    FLASK_DEBUG=false \
+    ENABLE_HSTS=false \
+    SESSION_COOKIE_SECURE=false \
+    TRUSTED_PROXY_COUNT=0 \
+    GUNICORN_WORKERS=2 \
+    LOG_LEVEL=INFO
 
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT} --workers ${GUNICORN_WORKERS} --access-logfile - --error-logfile - app:app"]
